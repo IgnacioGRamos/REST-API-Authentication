@@ -20,9 +20,19 @@ const userSchema = new Schema({
         required: true
     }
 });
-userSchema.pre('save', function(next) {
+userSchema.pre<IUser>('save', async function(next) {
     const user = this;
     if(!user.isModified('password')) return next();
 
-    bcrypt.genSalt()
-})
+    const salt = await bcrypt.genSalt(10); // string que nos permite codificar la passport
+    const hash = await bcrypt.hash(user.password, salt);
+    user.password = hash;
+    next();
+});
+
+userSchema.methods.comparePassword = async function(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
+};
+
+
+export default model<IUser>('User', userSchema);

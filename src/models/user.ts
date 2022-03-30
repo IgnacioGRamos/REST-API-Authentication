@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 export interface IUser extends Document {
     email: string;
     password: string;
+    comparePassword: (password: string) => Promise<boolean>
 }
 
 const userSchema = new Schema({
